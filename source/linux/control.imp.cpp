@@ -35,6 +35,7 @@ using namespace owl::forms;
 
 Display* control::implementation::m_xlib_display = 0;
 Atom     control::implementation::m_xlib_atom = 0;
+Atom     control::implementation::m_xlib_delete = 0;
 
 control::implementation::implementation ()
 {
@@ -69,20 +70,23 @@ bool control::implementation::create ()
     {
         m_xlib_display = XOpenDisplay(NULL);
         XSetErrorHandler(&error_handler);
+        m_xlib_delete = XInternAtom(m_xlib_display, "WM_DELETE_WINDOW", False);
     }
     if (m_xlib_display==NULL) return m_control->m_created;
 
-    m_xlib_window = XCreateSimpleWindow(m_xlib_display, (m_control->m_parent!=NULL)?m_control->m_parent->m_imp->m_xlib_window : DefaultRootWindow(m_xlib_display), m_control->x(), m_control->y(),  m_control->width(), m_control->height(), 0, 0, m_backbuffer.backcolor().get());
+    m_xlib_window = XCreateSimpleWindow(m_xlib_display, (m_control->m_parent!=NULL)?m_control->m_parent->imp->m_xlib_window : DefaultRootWindow(m_xlib_display), m_control->x(), m_control->y(),  m_control->width(), m_control->height(), 0, 0, m_backbuffer.backcolor().get());
 
     m_backbuffer.resize(m_control->width(), m_control->height());
 
-    m_xlib_gc = XCreateGC(m_xlib_display, m_backbuffer.m_imp->m_pixmap, 0, NULL);
+    m_xlib_gc = XCreateGC(m_xlib_display, m_backbuffer.imp->m_pixmap, 0, NULL);
 
     XSelectInput(m_xlib_display, m_xlib_window, StructureNotifyMask | ButtonPressMask | KeyPressMask | StructureNotifyMask | ExposureMask);
 
     XMapWindow(m_xlib_display, m_xlib_window);
 
     XMoveWindow(m_xlib_display, m_xlib_window, m_control->x(), m_control->y());
+
+    XSetWMProtocols(m_xlib_display, m_xlib_window, &m_xlib_delete, 1);
 
     set_window_ptr();
 
@@ -103,13 +107,22 @@ void control::implementation::update()
 
         switch (event.type)
         {
+            case ClientMessage:
+            {
+                if ((Atom)event.xclient.data.l[0] == m_xlib_delete)
+                {
+                    w->m_control->destroy();
+                    return;
+                }
+            }
+            break;
+
             case DestroyNotify:
             {
-
                 w->m_control->on_destroy();
                 w->m_control->m_created = false;
-                break;
             }
+            break;
 
             case KeyPress:
             {
@@ -124,9 +137,8 @@ void control::implementation::update()
                     // notify the window
 
                 }
-
-                break;
             }
+            break;
 
             case ButtonPress:
             {
@@ -139,19 +151,16 @@ void control::implementation::update()
                 case 3:
                 break;
                 }
-
-                break;
             }
+            break;
 
             case ConfigureNotify:
             {
                 w->m_control->m_width = event.xconfigure.width;
                 w->m_control->m_height = event.xconfigure.height;
-                w->m_backbuffer.resize(w->m_control->m_width, w->m_control->m_height);
-
-                //event.xconfigure.width, event.xconfigure.height
-                /* fall through... */
+                w->resize_backbuffer();
             }
+            break;
 
             case Expose:
             {
@@ -161,6 +170,11 @@ void control::implementation::update()
         }
 
     } while(XPending(m_xlib_display)); /* loop to compress events */
+}
+
+void control::implementation::resize_backbuffer ()
+{
+    m_backbuffer.resize(m_control->m_width, m_control->m_height);
 }
 
 void control::implementation::set_window_ptr ()
@@ -221,10 +235,10 @@ void control::implementation::set_parent (control* _parent)
 {
     m_control->m_parent = _parent;
 
-    if (_parent!=NULL && _parent->m_imp->m_xlib_window != 0)
+    if (_parent!=NULL && _parent->imp->m_xlib_window != 0)
     {
         XUnmapWindow(m_xlib_display, m_xlib_window);
-        XReparentWindow(m_xlib_display, m_xlib_window, m_control->m_parent->m_imp->m_xlib_window, 0, 0);
+        XReparentWindow(m_xlib_display, m_xlib_window, m_control->m_parent->imp->m_xlib_window, 0, 0);
         XMapWindow(m_xlib_display, m_xlib_window);
     }
 }

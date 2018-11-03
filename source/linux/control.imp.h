@@ -51,8 +51,11 @@ class control::implementation
 
         void                            set_title           (const std::string& _title);
 
+        void                            resize_backbuffer   ();
+
         static Display*                 m_xlib_display;
         static Atom                     m_xlib_atom;
+        static Atom                     m_xlib_delete;
         Window                          m_xlib_window;
         GC                              m_xlib_gc;
 

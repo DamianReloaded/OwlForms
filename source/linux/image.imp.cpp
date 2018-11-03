@@ -32,7 +32,8 @@ using namespace owl::forms;
 
 image::implementation::implementation () : m_pixmap(0), m_ximage(0), m_width(0), m_height(0)
 {
-
+    m_buffer = nullptr;
+    m_buffer_size = 0;
 }
 
 image::implementation::~implementation ()
@@ -43,6 +44,8 @@ image::implementation::~implementation ()
 
 void image::implementation::resize (const int& _width, const int& _height)
 {
+    if (m_width == _width && m_height == _height) return;
+
     m_width = _width;
     m_height = _height;
 
@@ -54,7 +57,12 @@ void image::implementation::resize (const int& _width, const int& _height)
     Display *display=control::implementation::m_xlib_display;
 
     size_t newsize = m_width*m_height*4;
-    if (m_buffer.size()!=newsize) m_buffer.resize(newsize,0);
+    if (m_buffer_size!=newsize)
+    {
+        m_buffer_size = newsize;
+        delete [] m_buffer;
+        m_buffer = new unsigned char[m_buffer_size];
+    }
 
     clear();
 
@@ -78,7 +86,7 @@ void image::implementation::update ()
 
 void image::implementation::clear ()
 {
-    for (size_t i=0; i<m_buffer.size(); i+=4)
+    for (size_t i=0; i<m_buffer_size; i+=4)
     {
         (*((int*)&m_buffer[i])) = m_backcolor.get();
     }

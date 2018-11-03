@@ -57,7 +57,8 @@ class image::implementation
         int                     m_height;
         color                   m_backcolor;
 
-        std::vector<unsigned char>  m_buffer;
+        unsigned char*          m_buffer;
+        size_t                  m_buffer_size;
 };
 
 }}

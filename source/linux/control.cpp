@@ -32,8 +32,8 @@ control::control (control* _parent)
 {
     m_created           = false;
     m_parent            = _parent;
-	m_imp               = new implementation();
-	m_imp->m_control    = this;
+	imp               = new implementation();
+	imp->m_control    = this;
 
     m_x                 = 0;
     m_y                 = 0;
@@ -45,19 +45,30 @@ control::control (control* _parent)
 
 control::~control ()
 {
-
-	delete m_imp;
+    destroy();
+	delete imp;
 }
 
 bool control::create (control* _parent)
 {
     if (_parent!=NULL) m_parent = _parent;
-    return m_imp->create();
+    return imp->create();
+}
+
+void control::destroy ()
+{
+    imp->destroy();
+    m_created = false;
 }
 
 void control::update()
 {
     implementation::update();
+}
+
+void control::on_init ()
+{
+
 }
 
 void control::on_paint ()
@@ -77,45 +88,45 @@ const bool& control::created ()
 
 void control::parent (control* _parent)
 {
-    m_imp->set_parent(_parent);
+    imp->set_parent(_parent);
 }
 
 void control::location (const int& _x, const int& _y)
 {
     m_x = _x;
     m_y = _y;
-    m_imp->move_size (m_x, m_y, m_width, m_height);
+    imp->move_size (m_x, m_y, m_width, m_height);
 }
 
 void control::size (const int& _width, const int& _height)
 {
     m_width = _width;
     m_height = _height;
-    m_imp->move_size (m_x, m_y, m_width, m_height);
+    imp->move_size (m_x, m_y, m_width, m_height);
 }
 
 void control::x (const int& _value)
 {
     m_x = _value;
-    m_imp->move_size (m_x, m_y, m_width, m_height);
+    imp->move_size (m_x, m_y, m_width, m_height);
 }
 
 void control::y (const int& _value)
 {
     m_y = _value;
-    m_imp->move_size (m_x, m_y, m_width, m_height);
+    imp->move_size (m_x, m_y, m_width, m_height);
 }
 
 void control::width (const int& _value)
 {
     m_width = _value;
-    m_imp->move_size (m_x, m_y, m_width, m_height);
+    imp->move_size (m_x, m_y, m_width, m_height);
 }
 
 void control::height (const int& _value)
 {
     m_height = _value;
-    m_imp->move_size (m_x, m_y, m_width, m_height);
+    imp->move_size (m_x, m_y, m_width, m_height);
 }
 
 const int& control::x ()
@@ -140,19 +151,20 @@ const int& control::height ()
 
 void control::backcolor (const int& _red, const int& _green, const int& _blue, const int& _alpha)
 {
-    m_imp->m_backbuffer.clear(_red, _green, _blue, _alpha);
-    m_imp->move_size(m_x,m_y,m_width, m_height);
+    imp->m_backbuffer.clear(_red, _green, _blue, _alpha);
+    imp->move_size(m_x,m_y,m_width, m_height);
 }
 
 void control::refresh ()
 {
+    imp->resize_backbuffer();
     on_paint();
-    XCopyArea(m_imp->m_xlib_display, m_imp->m_backbuffer.m_imp->m_pixmap, m_imp->m_xlib_window, m_imp->m_xlib_gc, 0, 0, width(), height(), 0, 0);
-    XFlush(m_imp->m_xlib_display);
+    XCopyArea(imp->m_xlib_display, imp->m_backbuffer.imp->m_pixmap, imp->m_xlib_window, imp->m_xlib_gc, 0, 0, width(), height(), 0, 0);
+    XFlush(imp->m_xlib_display);
 }
 
 void control::draw (image* _source, const int& _xdest, const int& _ydest)
 {
-    m_imp->m_backbuffer.draw(_source, _xdest, _ydest);
+    imp->m_backbuffer.draw(_source, _xdest, _ydest);
     refresh();
 }

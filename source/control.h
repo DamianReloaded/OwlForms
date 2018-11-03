@@ -39,6 +39,7 @@ class control
 		virtual						~control		();
 
         bool                        create          (control* _parent=NULL);
+        void                        destroy         ();
 		static void                 update          ();
 		void                        refresh         ();
 
@@ -77,7 +78,7 @@ class control
         int                         m_width;
         int                         m_height;
 
-		control::implementation*    m_imp;
+		control::implementation*    imp;
         bool                        m_created;
 
 

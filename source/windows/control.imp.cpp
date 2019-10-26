@@ -60,8 +60,8 @@ LRESULT CALLBACK control::implementation::wndproc(HWND hWnd, UINT message, WPARA
 {
 	PAINTSTRUCT ps;
 
-	control::implementation* m_imp = (control::implementation*)GetWindowLongPtr(hWnd, GWL_USERDATA);
-	if (m_imp == NULL) return DefWindowProc(hWnd, message, wParam, lParam);
+	control::implementation* imp = (control::implementation*)GetWindowLongPtr(hWnd, GWL_USERDATA);
+	if (imp == NULL) return DefWindowProc(hWnd, message, wParam, lParam);
 
 	switch (message)
 	{
@@ -75,49 +75,49 @@ LRESULT CALLBACK control::implementation::wndproc(HWND hWnd, UINT message, WPARA
     //In our case the WM_TIMER event occurs every 15 seconds see (A)
 	case WM_PAINT:
 		{
-			m_imp->m_control->on_paint();
+			imp->m_control->on_paint();
 
-            HDC dc = m_imp->m_bmpu->get_dc_buffer(0);
+            HDC dc = imp->m_bmpu->get_dc_buffer(0);
 
             BITMAPINFO info;
             ZeroMemory(&info, sizeof(BITMAPINFO));
             info.bmiHeader.biBitCount = 32;
-            info.bmiHeader.biWidth =  m_imp->m_backbuffer.width();
-            info.bmiHeader.biHeight = m_imp->m_backbuffer.height();
+            info.bmiHeader.biWidth =  imp->m_backbuffer.width();
+            info.bmiHeader.biHeight = imp->m_backbuffer.height();
             info.bmiHeader.biPlanes = 1;
             info.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
-            info.bmiHeader.biSizeImage = m_imp->m_backbuffer.m_imp->m_buffer.size();
+            info.bmiHeader.biSizeImage = imp->m_backbuffer.imp->m_buffer.size();
             info.bmiHeader.biCompression = BI_RGB;
 
-            StretchDIBits(dc, 0, 0, m_imp->m_backbuffer.width(), m_imp->m_backbuffer.height(), 0, 0, m_imp->m_backbuffer.width(), m_imp->m_backbuffer.height(), &m_imp->m_backbuffer.m_imp->m_buffer[0], &info, DIB_RGB_COLORS, SRCCOPY);
+            StretchDIBits(dc, 0, 0, imp->m_backbuffer.width(), imp->m_backbuffer.height(), 0, 0, imp->m_backbuffer.width(), imp->m_backbuffer.height(), &imp->m_backbuffer.imp->m_buffer[0], &info, DIB_RGB_COLORS, SRCCOPY);
 
             RECT rect;
             rect.left = 0;
             rect.top = 0;
-            rect.right = m_imp->m_backbuffer.width();
-            rect.bottom = m_imp->m_backbuffer.height();
+            rect.right = imp->m_backbuffer.width();
+            rect.bottom = imp->m_backbuffer.height();
             InvalidateRect(hWnd, &rect, false);
 
 			HDC hdc = BeginPaint(hWnd, &ps);
-			m_imp->m_bmpu->copy_to_screen(0);
+			imp->m_bmpu->copy_to_screen(0);
 			EndPaint(hWnd, &ps);
 		}
 		break;
 	case WM_DESTROY:
 		{
 			bool cancel = false;
-			m_imp->m_control->on_destroy();
+			imp->m_control->on_destroy();
 			if (cancel) break;
 			PostQuitMessage(0);
-			m_imp->destroy();
+			imp->destroy();
 		}
 		break;
 	case WM_SIZE:
 		{
-			m_imp->m_control->m_width = LOWORD(lParam);
-			m_imp->m_control->m_height = HIWORD(lParam);
-			m_imp->m_backbuffer.resize(m_imp->m_control->width(), m_imp->m_control->height());
-			m_imp->m_bmpu->resize(hWnd);
+			imp->m_control->m_width = LOWORD(lParam);
+			imp->m_control->m_height = HIWORD(lParam);
+			imp->m_backbuffer.resize(imp->m_control->width(), imp->m_control->height());
+			imp->m_bmpu->resize(hWnd);
 		}
 		break;
     case WM_ERASEBKGND:
@@ -127,7 +127,7 @@ LRESULT CALLBACK control::implementation::wndproc(HWND hWnd, UINT message, WPARA
             RECT rc;
             HDC hdc = (HDC) wParam;
             GetClientRect(hWnd, &rc);
-            FillRect(hdc, &rc, m_imp->m_background_brush);*/
+            FillRect(hdc, &rc, imp->m_background_brush);*/
         }
 		break;
 	default:
@@ -176,7 +176,7 @@ bool control::implementation::create ()
    	if (m_control->m_parent!=NULL)
     {
         m_hwnd = CreateWindow(classname.c_str(), NULL, WS_VISIBLE | WS_CHILD,
-        m_control->m_x, m_control->m_y, m_control->m_width, m_control->m_height, m_control->m_parent->m_imp->m_hwnd, NULL, m_hinstance, NULL);
+        m_control->m_x, m_control->m_y, m_control->m_width, m_control->m_height, m_control->m_parent->imp->m_hwnd, NULL, m_hinstance, NULL);
     }
     else
     {
@@ -233,7 +233,7 @@ void control::implementation::set_parent (control* _parent)
 {
     m_control->m_parent = _parent;
 
-    if (_parent!=NULL && _parent->m_imp->m_hwnd != 0)
+    if (_parent!=NULL && _parent->imp->m_hwnd != 0)
     {
 
     }

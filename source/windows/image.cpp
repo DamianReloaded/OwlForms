@@ -32,18 +32,18 @@ using namespace owl::forms;
 
 image::image	()
 {
-	m_imp = new implementation();
+	imp = new implementation();
 }
 
 image::~image	()
 {
 
-	delete m_imp;
+	delete imp;
 }
 
 void image::resize (const int& _width, const int& _height)
 {
-    m_imp->resize(_width, _height);
+    imp->resize(_width, _height);
 }
 
 
@@ -54,40 +54,40 @@ bool image::load (const std::string& _filepath)
     unsigned error = lodepng::decode(buffer, width, height, _filepath);
     if (error != 0) return false;
 
-    m_imp->m_width = width;
-    m_imp->m_height = height;
+    imp->m_width = width;
+    imp->m_height = height;
 
-    m_imp->m_buffer = buffer;
+    imp->m_buffer = buffer;
 
 
-    m_imp->update();
+    imp->update();
 
     return true;
 }
 
 void image::clear (const int& _r, const int& _g, const int& _b, const int& _a)
 {
-    m_imp->clear(_r, _g, _b, _a);
+    imp->clear(_r, _g, _b, _a);
 }
 
 void image::clear ()
 {
-    m_imp->clear();
+    imp->clear();
 }
 
 const color& image::backcolor ()
 {
-    return m_imp->m_backcolor;
+    return imp->m_backcolor;
 }
 
 const int image::width ()
 {
-    return m_imp->m_width;
+    return imp->m_width;
 }
 
 const int image::height ()
 {
-    return m_imp->m_height;
+    return imp->m_height;
 }
 
 void image::draw (image* _source, const int& _xdest, const int& _ydest)
@@ -118,12 +118,12 @@ void image::draw (image* _source, const int& _xdest, const int& _ydest)
         {
             int pixs = (xs+(ys*_source->width()))*4;
             int pixd = (xd+(yd*width()))*4;
-            m_imp->m_buffer[pixd+0] = _source->m_imp->m_buffer[pixs+0];
-            m_imp->m_buffer[pixd+1] = _source->m_imp->m_buffer[pixs+1];
-            m_imp->m_buffer[pixd+2] = _source->m_imp->m_buffer[pixs+2];
-            m_imp->m_buffer[pixd+3] = _source->m_imp->m_buffer[pixs+3];
+            imp->m_buffer[pixd+0] = _source->imp->m_buffer[pixs+0];
+            imp->m_buffer[pixd+1] = _source->imp->m_buffer[pixs+1];
+            imp->m_buffer[pixd+2] = _source->imp->m_buffer[pixs+2];
+            imp->m_buffer[pixd+3] = _source->imp->m_buffer[pixs+3];
         }
     }
 
-    m_imp->update();
+    imp->update();
 }

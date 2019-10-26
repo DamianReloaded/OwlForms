@@ -40,5 +40,5 @@ window::~window	()
 
 void window::title (const std::string& _title)
 {
-    m_imp->set_title(_title);
+    imp->set_title(_title);
 }

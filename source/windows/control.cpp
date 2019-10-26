@@ -32,8 +32,8 @@ control::control (control* _parent)
 {
     m_created           = false;
     m_parent            = _parent;
-	m_imp               = new implementation();
-	m_imp->m_control    = this;
+	imp               = new implementation();
+	imp->m_control    = this;
 
     m_x                 = 0;
     m_y                 = 0;
@@ -46,13 +46,13 @@ control::control (control* _parent)
 control::~control ()
 {
 
-	delete m_imp;
+	delete imp;
 }
 
 bool control::create (control* _parent)
 {
     if (_parent!=NULL) m_parent = _parent;
-    return m_imp->create();
+    return imp->create();
 }
 
 void control::update()
@@ -82,45 +82,45 @@ const bool& control::created ()
 
 void control::parent (control* _parent)
 {
-    m_imp->set_parent(_parent);
+    imp->set_parent(_parent);
 }
 
 void control::location (const int& _x, const int& _y)
 {
     m_x = _x;
     m_y = _y;
-    m_imp->move_size (m_x, m_y, m_width, m_height);
+    imp->move_size (m_x, m_y, m_width, m_height);
 }
 
 void control::size (const int& _width, const int& _height)
 {
     m_width = _width;
     m_height = _height;
-    m_imp->move_size (m_x, m_y, m_width, m_height);
+    imp->move_size (m_x, m_y, m_width, m_height);
 }
 
 void control::x (const int& _value)
 {
     m_x = _value;
-    m_imp->move_size (m_x, m_y, m_width, m_height);
+    imp->move_size (m_x, m_y, m_width, m_height);
 }
 
 void control::y (const int& _value)
 {
     m_y = _value;
-    m_imp->move_size (m_x, m_y, m_width, m_height);
+    imp->move_size (m_x, m_y, m_width, m_height);
 }
 
 void control::width (const int& _value)
 {
     m_width = _value;
-    m_imp->move_size (m_x, m_y, m_width, m_height);
+    imp->move_size (m_x, m_y, m_width, m_height);
 }
 
 void control::height (const int& _value)
 {
     m_height = _value;
-    m_imp->move_size (m_x, m_y, m_width, m_height);
+    imp->move_size (m_x, m_y, m_width, m_height);
 }
 
 const int& control::x ()
@@ -145,17 +145,17 @@ const int& control::height ()
 
 void control::backcolor (const int& _red, const int& _green, const int& _blue, const int& _alpha)
 {
-    m_imp->backcolor(_red, _green, _blue, _alpha);
+    imp->backcolor(_red, _green, _blue, _alpha);
 }
 
 void control::refresh ()
 {
-    UpdateWindow(m_imp->m_hwnd);
+    UpdateWindow(imp->m_hwnd);
     //on_paint();
 }
 
 void control::draw (image* _source, const int& _xdest, const int& _ydest)
 {
-    m_imp->m_backbuffer.draw(_source, _xdest, _ydest);
+    imp->m_backbuffer.draw(_source, _xdest, _ydest);
     refresh();
 }

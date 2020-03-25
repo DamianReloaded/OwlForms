@@ -60,7 +60,7 @@ LRESULT CALLBACK control::implementation::wndproc(HWND hWnd, UINT message, WPARA
 {
 	PAINTSTRUCT ps;
 
-	control::implementation* imp = (control::implementation*)GetWindowLongPtr(hWnd, GWL_USERDATA);
+	control::implementation* imp = (control::implementation*)GetWindowLongPtr(hWnd, GWLP_USERDATA );
 	if (imp == NULL) return DefWindowProc(hWnd, message, wParam, lParam);
 
 	switch (message)
@@ -189,7 +189,7 @@ bool control::implementation::create ()
         return FALSE;
 	}
 
-	SetWindowLongPtr( m_hwnd, GWL_USERDATA, (LONG)this);
+	SetWindowLongPtr( m_hwnd, GWLP_USERDATA, (LONG_PTR)this);
 
 	backcolor(m_backbuffer.backcolor().r(), m_backbuffer.backcolor().g(), m_backbuffer.backcolor().b());
 
@@ -221,12 +221,12 @@ void control::implementation::update()
 
 void control::implementation::set_window_ptr ()
 {
-    SetWindowLongPtr( m_hwnd, GWL_USERDATA, (LONG)this);
+    SetWindowLongPtr( m_hwnd, GWLP_USERDATA, (LONG_PTR)this);
 }
 
 control::implementation* control::implementation::get_window_ptr (const HWND& _hwnd)
 {
-    return (control::implementation*)GetWindowLongPtr(_hwnd, GWL_USERDATA);
+    return (control::implementation*)GetWindowLongPtr(_hwnd, GWLP_USERDATA);
 }
 
 void control::implementation::set_parent (control* _parent)
